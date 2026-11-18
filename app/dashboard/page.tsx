@@ -1,14 +1,17 @@
 import Shell from "@/components/Shell";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 export const dynamic="force-dynamic";
 export default async function Dashboard(){
  const session=await getSession();
+ if(session?.role === "SUPER_ADMIN") redirect("/platform/schools");
+ if(!session?.schoolId) redirect("/login");
  const [students,staff,payments,assignments]=await Promise.all([
-  prisma.student.count({where:{active:true}}).catch(()=>0),
-  prisma.staff.count().catch(()=>0),
-  prisma.payment.aggregate({ _sum:{amount:true}}).catch(()=>({_sum:{amount:0}})),
-  prisma.assignment.count().catch(()=>0)
+  prisma.student.count({where:{schoolId:session.schoolId,active:true}}).catch(()=>0),
+  prisma.staff.count({where:{schoolId:session.schoolId}}).catch(()=>0),
+  prisma.payment.aggregate({where:{schoolId:session.schoolId}, _sum:{amount:true}}).catch(()=>({_sum:{amount:0}})),
+  prisma.assignment.count({where:{schoolId:session.schoolId}}).catch(()=>0)
  ]);
  const money=Number(payments._sum.amount||0).toLocaleString("en-KE");
  return <Shell><div className="content">

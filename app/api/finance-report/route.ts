@@ -2,9 +2,9 @@ import {NextResponse} from "next/server";
 import {prisma} from "@/lib/prisma";
 import {requireRole} from "@/lib/auth";
 export async function GET(){try{
- await requireRole(["ADMIN","BURSAR"]);
- const students=await prisma.student.findMany({where:{active:true},include:{payments:true}});
- const structures=await prisma.feeStructure.findMany();
+ const user=await requireRole(["ADMIN","BURSAR"]);
+ const students=await prisma.student.findMany({where:{schoolId:user.schoolId,active:true},include:{payments:true}});
+ const structures=await prisma.feeStructure.findMany({where:{schoolId:user.schoolId}});
  const rows=students.map(s=>{
   const due=structures.filter(f=>f.curriculum===s.curriculum&&f.grade===s.grade).reduce((a,f)=>a+Number(f.amount),0);
   const paid=s.payments.reduce((a,p)=>a+Number(p.amount),0);

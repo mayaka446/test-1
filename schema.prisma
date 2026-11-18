@@ -8,10 +8,18 @@ datasource db {
 }
 
 enum Role {
+  SUPER_ADMIN
   ADMIN
   TEACHER
   STUDENT
   BURSAR
+}
+
+enum SchoolStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
 }
 
 enum Curriculum {
@@ -40,7 +48,46 @@ enum AssignmentStatus {
   CLOSED
 }
 
+
+model School {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  email       String?
+  phone       String?
+  address     String?
+  logoUrl     String?
+  timezone    String   @default("Africa/Nairobi")
+  currency    String   @default("KES")
+  active      Boolean  @default(true)
+  status      SchoolStatus @default(PENDING)
+  reviewedAt  DateTime?
+  reviewNote  String?
+  createdAt   DateTime @default(now())
+  users       User[]
+  students    Student[]
+  staff       Staff[]
+  subjects    Subject[]
+  classes     SchoolClass[]
+  enrollments Enrollment[]
+  studentAttendance StudentAttendance[]
+  staffAttendance StaffAttendance[]
+  feeStructures FeeStructure[]
+  payments    Payment[]
+  expenses    Expense[]
+  examinations Examination[]
+  results     Result[]
+  assignments Assignment[]
+  submissions AssignmentSubmission[]
+  lessonNotes LessonNote[]
+  announcements Announcement[]
+  auditLogs   AuditLog[]
+  gradingBands GradingBand[]
+}
+
 model User {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
@@ -54,6 +101,8 @@ model User {
 }
 
 model Student {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id             String   @id @default(cuid())
   admissionNo    String   @unique
   firstName      String
@@ -78,6 +127,8 @@ model Student {
 }
 
 model Staff {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String   @id @default(cuid())
   employeeNo  String   @unique
   name        String
@@ -91,6 +142,8 @@ model Staff {
 }
 
 model Subject {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String   @id @default(cuid())
   code        String   @unique
   name        String
@@ -101,6 +154,8 @@ model Subject {
 }
 
 model SchoolClass {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String   @id @default(cuid())
   name        String
   grade       String
@@ -112,6 +167,8 @@ model SchoolClass {
 }
 
 model Enrollment {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id        String @id @default(cuid())
   studentId String
   classId   String
@@ -121,6 +178,8 @@ model Enrollment {
 }
 
 model StudentAttendance {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id        String @id @default(cuid())
   studentId String
   date      DateTime
@@ -132,6 +191,8 @@ model StudentAttendance {
 }
 
 model StaffAttendance {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id        String @id @default(cuid())
   staffId   String
   date      DateTime
@@ -142,6 +203,8 @@ model StaffAttendance {
 }
 
 model FeeStructure {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String   @id @default(cuid())
   name        String
   curriculum  Curriculum
@@ -153,6 +216,8 @@ model FeeStructure {
 }
 
 model Payment {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String @id @default(cuid())
   receiptNo   String @unique
   studentId   String
@@ -166,6 +231,8 @@ model Payment {
 }
 
 model Expense {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String   @id @default(cuid())
   category    String
   description String
@@ -176,6 +243,8 @@ model Expense {
 }
 
 model Examination {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String   @id @default(cuid())
   name        String
   curriculum  Curriculum
@@ -188,6 +257,8 @@ model Examination {
 }
 
 model Result {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id            String @id @default(cuid())
   studentId     String
   subjectId     String
@@ -202,6 +273,8 @@ model Result {
 }
 
 model Assignment {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String @id @default(cuid())
   title       String
   instructions String
@@ -218,6 +291,8 @@ model Assignment {
 }
 
 model AssignmentSubmission {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id           String @id @default(cuid())
   assignmentId String
   studentId    String
@@ -232,6 +307,8 @@ model AssignmentSubmission {
 }
 
 model LessonNote {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String @id @default(cuid())
   title       String
   description String?
@@ -245,6 +322,8 @@ model LessonNote {
 }
 
 model Announcement {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id        String @id @default(cuid())
   title     String
   message   String
@@ -254,6 +333,8 @@ model Announcement {
 }
 
 model AuditLog {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id        String   @id @default(cuid())
   userId    String
   action    String
@@ -265,6 +346,8 @@ model AuditLog {
 
 
 model GradingBand {
+  schoolId String?
+  school   School? @relation(fields: [schoolId], references: [id])
   id          String @id @default(cuid())
   curriculum  Curriculum
   name        String
